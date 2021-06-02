@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-04-26 22:52:06
- * @LastEditTime: 2021-05-10 17:19:05
+ * @LastEditTime: 2021-05-26 22:21:40
  * @LastEditors: Please set LastEditors
  * @Description: 配置文件夹别名
  * @FilePath: \JScoded:\JScode\vueRouter\tabbar\vue.config.js
@@ -24,6 +24,7 @@ module.exports = {
             .set('common',resolve('src/common'))
             .set('network',resolve('src/network'))
             .set('views',resolve('src/views'))
+            .set('store',resolve('src/store'))
     }
 }
 

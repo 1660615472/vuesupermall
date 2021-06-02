@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-05-25 21:31:57
- * @LastEditTime: 2021-05-25 21:57:45
+ * @LastEditTime: 2021-05-25 22:47:44
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \JScoded:\code\vueproject\vuesupermall\src\views\goodDetail\childComp\detailButtomBar.vue
@@ -23,7 +23,7 @@
       </div>
     </div>
     <div class="bar-item bar-right">
-      <div class="cart" @click="addToCart">加入购物车</div>
+      <div class="cart" @click='addShopCar'>加入购物车</div>
       <div class="buy">购买</div>
     </div>
   </div>
@@ -31,7 +31,13 @@
 
 <script>
 export default {
-    name:'DetailButtomBar'
+    name:'DetailButtomBar',
+    methods:{
+        addShopCar(){
+            console.log('点击了加入购物车')
+            this.$emit('addShopCar')
+        }
+    }
 }
 </script>
 

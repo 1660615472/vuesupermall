@@ -1,15 +1,24 @@
 <!--
  * @Author: your name
  * @Date: 2021-05-18 22:55:23
- * @LastEditTime: 2021-05-25 21:35:20
+ * @LastEditTime: 2021-05-31 22:03:12
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \JScoded:\code\vueproject\vuesupermall\src\views\goodDetail\goodDetail.vue
 -->
 <template>
   <div id="good-detail">
-    <detail-navbar class="det-navbar" @titleClick="titleClick" ref='nav'></detail-navbar>
-    <scroll class="content" ref="scroll" :probe-type="3" @scroll='contentScroll'>
+    <detail-navbar
+      class="det-navbar"
+      @titleClick="titleClick"
+      ref="nav"
+    ></detail-navbar>
+    <scroll
+      class="content"
+      ref="scroll"
+      :probe-type="3"
+      @scroll="contentScroll"
+    >
       <detail-swiper :topImages="topImages"></detail-swiper>
       <detail-base-info :goodsObject="goodsObject"></detail-base-info>
       <shop-info :bussinessInfo="bussinessInfo"></shop-info>
@@ -25,7 +34,13 @@
       ></user-comment-info>
       <goods-list ref="goods" :goods="recommends"></goods-list>
     </scroll>
-    <detail-buttom-bar></detail-buttom-bar>
+    <detail-buttom-bar @addShopCar="addShopCar"></detail-buttom-bar>
+    <back-top
+      class="back-top"
+      @click.native="topClick"
+      v-show="isShow"
+    ></back-top>
+    <toast class="toast"></toast>
   </div>
 </template>
 
@@ -36,16 +51,14 @@ import DetailSwiper from "views/goodDetail/childComp/detailSwiper";
 import DetailParamsInfo from "views/goodDetail/childComp/detailParamsInfo";
 import DetailBaseInfo from "views/goodDetail/childComp/detailBaseInfo";
 import scroll from "@/components/common/scrollUtil/Scroll";
+import Toast from "@/components/common/toast/toast";
 import ShopInfo from "views/goodDetail/childComp/ShopInfo";
 import DetailButtomBar from "views/goodDetail/childComp/detailButtomBar";
+import BackTop from "@/components/common/backTop/BackTop";
 import UserCommentInfo from "views/goodDetail/childComp/userCommentInfo";
 import GoodsList from "components/content/tabControl/goods/GoodsList.vue";
 import DetailCommentInfo from "views/goodDetail/childComp/detailCommentInfo";
-import {
-  Goods,
-  Shop,
-  GoodsParam,
-} from "network/goodsDetail/goodDetailsObjectUtils";
+import {Goods,Shop,GoodsParam} from "network/goodsDetail/goodDetailsObjectUtils";
 
 export default {
   name: "goodDetail",
@@ -59,7 +72,9 @@ export default {
     DetailParamsInfo,
     UserCommentInfo,
     GoodsList,
-    DetailButtomBar
+    DetailButtomBar,
+    BackTop,
+    Toast
   },
   data() {
     return {
@@ -73,7 +88,10 @@ export default {
       recommends: [],
       //记录每个组件的高度
       themeTopYs: [],
-      currentIndex:0
+      currentIndex: 0,
+      isShow: false,
+      message:'',
+      isMessageShow:false
     };
   },
   methods: {
@@ -87,18 +105,49 @@ export default {
       this.$refs.scroll.scroll.scrollTo(0, -this.themeTopYs[index], 100);
     },
     //滑动页面按钮切换
-    contentScroll(position){
+    contentScroll(position) {
+      //决定是否展示back-top
+      this.isShow = -position.y > 1000 ? true : false;
       const positionY = -position.y;
-     let length = this.themeTopYs.length;
-     for(let i = 0 ; i < length ;i++){
-       if((i<length -1 && positionY > this.themeTopYs[i] && positionY< this.themeTopYs[i+1])||
-       (i === length -1 && positionY > this.themeTopYs[i])){
-         //console.log(i);
-         this.currentIndex = i
-         this.$refs.nav.currentIndex = this.currentIndex
-       }
-     }
-  }
+      let length = this.themeTopYs.length;
+      for (let i = 0; i < length; i++) {
+        if (
+          (i < length - 1 &&
+            positionY > this.themeTopYs[i] &&
+            positionY < this.themeTopYs[i + 1]) ||
+          (i === length - 1 && positionY > this.themeTopYs[i])
+        ) {
+          //console.log(i);
+          this.currentIndex = i;
+          this.$refs.nav.currentIndex = this.currentIndex;
+        }
+      }
+    },
+    topClick() {
+      this.$refs.scroll.scroll.scrollTo(0, 0, 1000);
+    },
+    addShopCar() {
+      //携带商品信息
+      const product = {};
+      product.image = this.topImages[0];
+      product.title = this.goodsObject.title;
+      product.desc = this.goodsObject.desc;
+      product.price = this.goodsObject.realPrice;
+      product.iid = this.iid;
+      product.checked = true;
+      //修改vuex里的state数据必须通过操作mutation里面的函数
+      //this.$store.commit('addGoodsCar',product)
+      this.$store.dispatch("addGoodsCar", product).then(res => {
+        //dispatch可以返回一个promise对象
+        //console.log(res);
+      /*   this.message = res;
+        res == '' ? this.isMessageShow = false : this.isMessageShow = true
+        setTimeout(()=>{
+           this.isMessageShow = false; 
+        },1500) */
+        this.$toast.show(res,1500)
+      });
+    },
   },
   activated() {
     console.log("goodDetail activated执行了");
@@ -130,7 +179,7 @@ export default {
       if (this.$refs.params && this.$refs.comment && this.$refs.goods) {
         //$nextTick获取组件中最新DOM元素
         this.$nextTick(() => {
-         this.themeTopYs = [];
+          this.themeTopYs = [];
           this.themeTopYs.push(0);
           this.themeTopYs.push(this.$refs.params.$el.offsetTop);
           this.themeTopYs.push(this.$refs.comment.$el.offsetTop);

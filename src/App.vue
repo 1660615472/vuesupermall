@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-05-06 14:37:16
- * @LastEditTime: 2021-05-20 15:43:18
+ * @LastEditTime: 2021-05-26 22:23:12
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \JScoded:\code\vueproject\vuesupermall\src\App.vue
@@ -20,11 +20,13 @@
 <script>
 import MainTabBar from "@/components/common/tabbar/mainTabbar.vue";
 import NavBar from "@/components/common/navbar/NavBar.vue";
+import store from 'store/index.js'
 export default {
   name: "App",
   components: {
     MainTabBar,
     NavBar,
+    store
   },
 };
 </script>
